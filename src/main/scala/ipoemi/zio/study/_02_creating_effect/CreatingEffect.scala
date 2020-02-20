@@ -12,6 +12,8 @@ import scala.concurrent.Future
 import scala.io.{Codec, Source, StdIn}
 
 object CreatingEffect {
+  val rt: DefaultRuntime = new DefaultRuntime {}
+
   def main(args: Array[String]): Unit = {
     val s1: UIO[Int] = ZIO.succeed(42)
     val s2: Task[Int] = Task.succeed(42)
@@ -95,7 +97,7 @@ object CreatingEffect {
 
     val s = new MyServerSocket(19992)
 
-    println(new DefaultRuntime {}.unsafeRun(console.putStrLn("start") *> accept(s).timeout(Duration.Zero)))
+    println(rt.unsafeRun(console.putStrLn("start") *> accept(s).timeout(Duration.Zero)))
 
     def download(url: String): ZIO[Any, Throwable, String] =
       ZIO.bracket(Task.effect(Source.fromURL(url)(Codec.UTF8)))(source => ZIO.effectTotal(source.close)) { source =>

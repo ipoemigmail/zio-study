@@ -13,6 +13,7 @@ lazy val root = (project in file("."))
     libraryDependencies += catsEffect,
     libraryDependencies += zioStream,
     libraryDependencies += zioInteropCats,
+    libraryDependencies += zioTest,
     libraryDependencies += simulacrum,
     scalacOptions ++= Seq(
       "-deprecation", // Emit warning and location for usages of deprecated APIs.
@@ -30,7 +31,7 @@ lazy val root = (project in file("."))
       "-Xlint:delayedinit-select", // Selecting member of DelayedInit.
       "-Xlint:doc-detached", // A Scaladoc comment appears to be detached from its element.
       "-Xlint:inaccessible", // Warn about inaccessible types in method signatures.
-      "-Xlint:infer-any", // Warn when a type argument is inferred to be `Any`.
+      //"-Xlint:infer-any", // Warn when a type argument is inferred to be `Any`.
       "-Xlint:missing-interpolator", // A string literal appears to be missing an interpolator id.
       "-Xlint:nullary-override", // Warn when non-nullary `def f()' overrides nullary `def f'.
       "-Xlint:nullary-unit", // Warn when nullary methods return Unit.
@@ -40,7 +41,7 @@ lazy val root = (project in file("."))
       "-Xlint:private-shadow", // A private field (or class parameter) shadows a superclass field.
       "-Xlint:stars-align", // Pattern sequence wildcard must align with sequence component.
       "-Xlint:type-parameter-shadow", // A local type parameter shadows a type already in scope.
-      "-Ywarn-dead-code", // Warn when dead code is identified.
+      //"-Ywarn-dead-code", // Warn when dead code is identified.
       "-Ywarn-extra-implicit", // Warn when more than one implicit parameter section is defined.
       "-Ywarn-numeric-widen", // Warn when numerics are widened.
       //"-Ywarn-unused:implicits", // Warn if an implicit parameter is unused.

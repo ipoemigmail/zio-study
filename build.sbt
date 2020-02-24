@@ -1,4 +1,5 @@
 import Dependencies._
+import sbt.Keys.testFrameworks
 
 ThisBuild / scalaVersion := "2.13.1"
 ThisBuild / version := "0.1.0-SNAPSHOT"
@@ -13,8 +14,10 @@ lazy val root = (project in file("."))
     libraryDependencies += catsEffect,
     libraryDependencies += zioStream,
     libraryDependencies += zioInteropCats,
-    libraryDependencies += zioTest,
+    libraryDependencies += zioTest % "test",
+    libraryDependencies += zioTestSbt % "test",
     libraryDependencies += simulacrum,
+    testFrameworks ++= Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
     scalacOptions ++= Seq(
       "-deprecation", // Emit warning and location for usages of deprecated APIs.
       "-explaintypes", // Explain type errors in more detail.

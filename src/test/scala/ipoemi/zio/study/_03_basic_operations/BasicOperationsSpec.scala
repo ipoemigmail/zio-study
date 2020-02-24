@@ -9,10 +9,14 @@ import zio.test.environment.TestConsole
 object BasicOperationsSpec
     extends DefaultRunnableSpec(
       suite("Basic Operations")(
-        testM("Mapping") {
-          assertM(IO.succeed(21).map(_ * 2), equalTo(42))
-          assertM(IO.fail("No no!").mapError(msg => new Exception(msg)).run, fails[Exception](anything))
-        },
+        suite("Mapping")(
+          testM("1") {
+            assertM(IO.succeed(21).map(_ * 2), equalTo(42))
+          },
+          testM("2") {
+            assertM(IO.fail("No no!").mapError(msg => new Exception(msg)).run, fails[Exception](anything))
+          }
+        ),
         testM("Chaining") {
           val chain = getStrLn.flatMap(input => putStrLn(s"You entered: $input"))
 
@@ -34,15 +38,19 @@ object BasicOperationsSpec
             equalTo(Vector("Hello! What is your name?\n", s"Hello, 123, welcome to ZIO!\n"))
           )
         },
-        testM("Zipping") {
-          val zipped = ZIO.succeed("4").zip(ZIO.succeed(2))
-          assertM(zipped, equalTo(("4", 2)))
-
-          val zipRight1 = putStrLn("What is your name?").zipRight(getStrLn)
-          assertM(TestConsole.feedLines("123") *> zipRight1, equalTo("123"))
-
-          val zipRight2 = putStrLn("What is your name?") *> getStrLn
-          assertM(TestConsole.feedLines("123") *> zipRight2, equalTo("123"))
-        }
+        suite("Zipping")(
+          testM("1") {
+            val zipped = ZIO.succeed("4").zip(ZIO.succeed(2))
+            assertM(zipped, equalTo(("4", 2)))
+          },
+          testM("2") {
+            val zipRight1 = putStrLn("What is your name?").zipRight(getStrLn)
+            assertM(TestConsole.feedLines("123") *> zipRight1, equalTo("123"))
+          },
+          testM("3") {
+            val zipRight2 = putStrLn("What is your name?") *> getStrLn
+            assertM(TestConsole.feedLines("123") *> zipRight2, equalTo("123"))
+          }
+        )
       )
     )

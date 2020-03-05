@@ -32,16 +32,15 @@ object BasicConcurrencySpec extends DefaultRunnableSpec {
             }.flatten
            */
 
-          val fib100Fiber: ZIO[Ref[Long], Nothing, Ref[Long]] =
+          val fib100Fiber: ZIO[Has[Ref[Long]], Nothing, Ref[Long]] =
             for {
-              counter <- ZIO.environment[Ref[Long]]
+              counter <- ZIO.environment[Has[Ref[Long]]].map(_.get)
               fiber <- fib(100).flatMap(n => counter.update(_ + n)).fork
               _ <- fiber.await
             } yield counter
 
-          assertM(counterIO.flatMap(counter => fib100Fiber.provide(counter) *> counter.get))(
-            equalTo(3736710778780434371L)
-          )
+          val deps = ZLayer.fromEffectMany(counterIO.map(Has.apply))
+          assertM(fib100Fiber.provideLayer(deps) >>= (_.get))(equalTo(3736710778780434371L))
         },
         testM("Joining Fibers") {
           val mes = for {

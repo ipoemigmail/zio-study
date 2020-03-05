@@ -11,33 +11,26 @@ object TestingEffectSpec extends DefaultRunnableSpec {
     suite("Testing Effect")(
       suite("Environment")(
         testM("Primitive") {
-          // Can't runnable example (ZIO[Console with Int, .., ..])
-          //
-          //val t = for {
-          //  env <- ZIO.environment[Int]
-          //  _ <- putStrLn(s"The value of the environment is: $env")
-          //} yield env
-
           val t = for {
-            env <- ZIO.environment[Int]
-          } yield env
+            env <- ZIO.environment[Has[Int]]
+            _ <- putStrLn(s"The value of the environment is: ${env.get}")
+          } yield env.get
 
-          assertM(
-            t.provide(2).flatMap(env => putStrLn(s"The value of the environment is: $env")) *> TestConsole.output
-          )(
+          assertM(t.provideSomeLayer[Console](ZLayer.succeedMany(Has(2))) *> TestConsole.output)(
             equalTo(Vector("The value of the environment is: 2\n"))
           )
         },
         testM("Case Class") {
           final case class Config(server: String, port: Int)
 
-          val configString: ZIO[Config, Nothing, String] =
+          val configString: ZIO[Has[Config], Nothing, String] =
             for {
-              server <- ZIO.access[Config](_.server)
-              port <- ZIO.access[Config](_.port)
+              server <- ZIO.access[Has[Config]](_.get.server)
+              port <- ZIO.access[Has[Config]](_.get.port)
             } yield s"Server: $server, port: $port"
 
-          assertM(configString.provide(Config("s", 0)))(equalTo("Server: s, port: 0"))
+          val deps = ZLayer.succeedMany(Has(Config("s", 0)))
+          assertM(configString.provideLayer(deps))(equalTo("Server: s, port: 0"))
         },
         testM("Trait") {
           trait DatabaseOps {
@@ -45,10 +38,10 @@ object TestingEffectSpec extends DefaultRunnableSpec {
             def getColumnNames(table: String): Task[List[String]]
           }
 
-          val tablesAndColumns: ZIO[DatabaseOps, Throwable, (List[String], List[String])] =
+          val tablesAndColumns: ZIO[Has[DatabaseOps], Throwable, (List[String], List[String])] =
             for {
-              tables <- ZIO.accessM[DatabaseOps](_.getTableNames)
-              columns <- ZIO.accessM[DatabaseOps](_.getColumnNames("user_table"))
+              tables <- ZIO.accessM[Has[DatabaseOps]](_.get.getTableNames)
+              columns <- ZIO.accessM[Has[DatabaseOps]](_.get.getColumnNames("user_table"))
             } yield (tables, columns)
 
           val testDatabaseOps = new DatabaseOps {
@@ -56,7 +49,8 @@ object TestingEffectSpec extends DefaultRunnableSpec {
             override def getColumnNames(table: String): Task[List[String]] = Task.succeed(List("cname"))
           }
 
-          assertM(tablesAndColumns.provide(testDatabaseOps))(equalTo((List("tname"), List("cname"))))
+          val deps = ZLayer.succeedMany(Has(testDatabaseOps))
+          assertM(tablesAndColumns.provideLayer(deps))(equalTo((List("tname"), List("cname"))))
         },
         testM("Providing Environment") {
           val square: ZIO[Int, Nothing, Int] =

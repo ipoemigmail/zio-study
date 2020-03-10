@@ -17,6 +17,7 @@ lazy val root = (project in file("."))
     libraryDependencies += zioTest % "test",
     libraryDependencies += zioTestSbt % "test",
     libraryDependencies += simulacrum,
+    libraryDependencies += commonIo,
     testFrameworks ++= Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
     scalacOptions ++= Seq(
       "-deprecation", // Emit warning and location for usages of deprecated APIs.

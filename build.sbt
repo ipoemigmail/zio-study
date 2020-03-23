@@ -7,8 +7,10 @@ ThisBuild / organization := "com.example"
 ThisBuild / organizationName := "example"
 
 lazy val root = (project in file("."))
+  .enablePlugins(DockerPlugin, JavaAppPackaging)
   .settings(
     name := "zio-study",
+    dockerBaseImage := "ipoemi/openjdk:x86_64-alpine-jdk8u242-b08-slim-bash",
     libraryDependencies += scalaTest % Test,
     libraryDependencies += catsCore,
     libraryDependencies += catsEffect,

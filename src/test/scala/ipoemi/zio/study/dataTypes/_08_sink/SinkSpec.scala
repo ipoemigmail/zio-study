@@ -14,8 +14,6 @@ object SinkSpec extends DefaultRunnableSpec {
 
         val sink = Sink.await[Int]
 
-        stream.run(sink)
-
         assertM(stream.run(sink))(equalTo(1))
       },
       suite("Create sinks")(
